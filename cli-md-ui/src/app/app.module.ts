@@ -7,12 +7,12 @@ import { HeadComponentComponent } from './head-component/head-component.componen
 
 @NgModule({
   declarations: [
-    AppComponent,
-    HeadComponentComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HeadComponentComponent
   ],
   providers: [],
   bootstrap: [AppComponent]
