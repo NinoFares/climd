@@ -3,16 +3,16 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HeadComponentComponent } from './head-component/head-component.component';
+import { HeadPageComponent } from './head-page/head-page.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HeadPageComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HeadComponentComponent
   ],
   providers: [],
   bootstrap: [AppComponent]
