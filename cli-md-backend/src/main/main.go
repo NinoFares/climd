@@ -1,43 +1,40 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-	"os"
-	"tools"
+	"db"
+	"handler"
+	"store"
 
-	"github.com/gorilla/mux"
+	"github.com/labstack/echo/middleware"
+
+	"github.com/labstack/echo"
+	"github.com/labstack/gommon/log"
 )
 
-func main() {
-	r := mux.NewRouter()
-
-	r.HandleFunc("/hello-world", helloWorld)
-
-	http.Handle("/", r)
-
-	srv := &http.Server{
-		Handler: r,
-		Addr:    ":" + os.Getenv("PORT"),
-	}
-
-	log.Fatal(srv.ListenAndServe())
+func New() *echo.Echo {
+	e := echo.New()
+	e.Logger.SetLevel(log.INFO)
+	e.Pre(middleware.RemoveTrailingSlash())
+	e.Use(middleware.Logger())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
+	}))
+	//e.Validator = NewValidator()
+	return e
 }
 
-func helloWorld(w http.ResponseWriter, r *http.Request) {
-	var data = struct {
-		Title string `json:"title"`
-	}{
-		Title: "Golang + Angular Starter Kit test",
-	}
+func main() {
+	r := New()
+	v1 := r.Group("/api")
 
-	jsonBytes, err := tools.StructToJSON(data)
-	if err != nil {
-		fmt.Print(err)
-	}
+	d := db.New()
+	db.AutoMigrate(d)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonBytes)
-	return
+	ps := store.NewPatientStore(d)
+	h := handler.NewHandler(ps)
+
+	h.Register(v1)
+	r.Logger.Fatal(r.Start("0.0.0.0:3000"))
 }
